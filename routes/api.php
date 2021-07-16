@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\GeneralController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,10 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/satellites', [GeneralController::class, 'webhook']);
+
+//Route::get('/satellites', function () {
+    //Satellites::get();
+    //$payLoad = json_decode(request()->get('payload'));
+    //dd($payLoad);
+//});
