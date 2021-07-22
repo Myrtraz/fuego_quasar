@@ -17,10 +17,6 @@ use App\Http\Controllers\GeneralController;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('/satellites', [GeneralController::class, 'webhook']);
-
-//Route::get('/satellites', function () {
-    //Satellites::get();
-    //$payLoad = json_decode(request()->get('payload'));
-    //dd($payLoad);
-//});
+Route::post('/topsecret', [GeneralController::class, 'topsecret']);
+Route::post('/topsecret_split/{satellite_name}', [GeneralController::class, 'topsecret_split_name']);
+Route::get('/topsecret_split', [GeneralController::class, 'topsecret_split']);

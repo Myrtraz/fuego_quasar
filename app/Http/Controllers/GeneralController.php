@@ -10,81 +10,126 @@ use App\Modal\Satellites;
 class GeneralController extends Controller
 {
 
-    public function webhook(Request $request)
+    public function topsecret(Request $request)
     {
-        $satellites = Satellites::get();
-        //dd($satellites->name);
-        $params = $request->all();
-        $satellite = Satellites::where('id', $params['referenceId'])->first();
-        //dd($satellite->name == 'kenobi');
+        $input = $request->all();        
 
-        if (empty($satellite)) {
-            return abort(404, 'no existe');
+        $count = count($input['name']);
+        $satellites = array();
 
-        } else {
-            if ($satellite->name == 'kenobi') {
+        for($i=0; $i<$count; $i++){
 
-                return response()->json(['position' => "{'x' => -500.0, 'y' = -200.0}", 'message' => 'este es un mensaje secreto']);
-            } elseif ($satellite->name == 'skywalker') {
+           if(!empty($input['name'][$i])){
+             array_push($satellites, 
+             array(
+              'satellites' => $input['name'][$i], $input['distance'][$i], $input['message'][$i]
+             ));
 
-                return response()->json(['position' => "{'x' => 100.0, 'y' = -100.0}", 'message' => 'este es un mensaje secreto']);
-            } elseif ($satellite->name == 'sato') {
-
-                return response()->json(['position' => "{'x' => 500.0, 'y' = 100.0}", 'message' => 'este es un mensaje secreto']);
-            }
-            return abort(404, ' no se pueda determinar la posición o el mensaje');
+           }
         }
 
-        return $satellites;
-    }
-    
-    public function getLocation()
-    {
+        $arr= [$input['message'][0]];
+        $arr1= [$input['message'][1]];
+        $arr2= [$input['message'][2]];
         
-    $sphere1 = new Sphere(-500.0, -200.0, 100.0);
-    $sphere2 = new Sphere(100.0, -100.0, 115.5);
-    $sphere3 = new Sphere(500.0, 100.0, 142.7);
+        $list = array_merge($arr, $arr1, $arr2);
+        
+        $remove[] = "'";
+        $remove[] = '"';
+        $remove[] = "-";
+        $remove[] = ",";
+        $remove[] = " ";
+        $FileName = str_replace( $remove, "",  $list);
 
-    $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
-    $point = $trilateration->position();
+        $z =  implode(" ", $FileName);
+        dd($z);
 
-    print_r($point);
-}
+        $sphere1 = new Sphere(-500.0, -200.0, $input['distance'][0]);
+        $sphere2 = new Sphere(100.0, -100.0, $input['distance'][1]);
+        $sphere3 = new Sphere(500.0, 100.0, $input['distance'][2]);
+    
+        $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
+        $point = $trilateration->position();
 
-    public function getMessage()
+        //return $point;
+    }
+
+    public function topsecret_split_name(Request $request)
     {
-        $kenobi= [' ' ,'este', ' ', 'un', 'mensaje'];
-        $skywalker= ['este', ' ', 'un', '', 'mensaje'];
-        $sato= ['', '', 'es', '', 'mensaje']; 
+      $input = $request->all();
 
-        print_r($kenobi);
-        print_r($skywalker);
-        print_r($sto);
+      request()->satellite_name;
+      
+      $satellites = Satellites::create([
+        'name' =>  request()->satellite_name,
+        'distance' =>  $input['distance'],
+        'message' =>  $input['message'],
+      ]);
+
+      return response()->json($satellites);
+    }
+
+    public function topsecret_split(Request $request)
+    {  
+      $id = 5;
+      $id1 = 15;
+      $id2 = 25;
+
+      $satellite = Satellites::where('id', $id)->first();
+      $satellite1 = Satellites::where('id', $id1)->first();
+      $satellite2 = Satellites::where('id', $id2)->first();
+
+        $arr= [$satellite->message];
+        $arr1= [$satellite1->message];
+        $arr2= [$satellite2->message];
+        
+        $list = array_merge($arr, $arr1, $arr2);
+        
+        $remove[] = "'";
+        $remove[] = '"';
+        $remove[] = "-";
+        $remove[] = ",";
+        $remove[] = " ";
+        $FileName = str_replace( $remove, "",  $list);
+
+        $z =  implode(" ", $FileName);
+
+        dd($z);
+      $sphere1 = new Sphere(-500.0, -200.0, $satellite->distance);
+      $sphere2 = new Sphere(100.0, -100.0, $satellite1->distance);
+      $sphere3 = new Sphere(500.0, 100.0, $satellite2->distance);
+
+      //$sphere1 = new Sphere(60.1695, 24.9354, 81175);
+      //$sphere2 = new Sphere(58.3806, 26.7251, 162311);
+      //$sphere3 = new Sphere(58.3859, 24.4971, 116932);
+      $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
+      $point = $trilateration->position();
+
+      print_r($point);
+
+      /*
+      Tuupola\Trilateration\Point Object
+      (
+          [latitude:protected] => 59.418775152143
+          [longitude:protected] => 24.75328717229
+      )
+      */
+
+    $url = "https://appelsiini.net/circles/"
+      . "?c={$sphere1}&c={$sphere2}&c={$sphere3}&m={$point}";
+
+    print '<a href="{$url}">Open in map</a>';
+      //return response()->json($satellites);
     }
 }
 
 /*
-public function webhook(Request $request)
-    {
-        $params = $request->all();
-        $order = Woocommerce_orders::where('woocommerce_order_id', $params['referenceCode'])->first();
-        $orderId = Orders::where('id', $order->order_id)->first();
+http://localhost:8000/api/topsecret?name[]=kenobi&distance[]=150
+&message[]="este", "", "un", ""&name[]=skywalker&distance[]=200
+&message[]="", "es", "un", ""&name[]=sato&distance[]=100
+&message[]="", "es", "", "mensaje"
 
-        if(! empty($order)) {
+http://localhost:8000/api/topsecret_split/{nombre}
 
-            $payment =Payments::create([
-                'order_id' => $order->order_id,
-                'transactions_id' => null,
-                'payment_method_id' => $orderId->payment_method_id,
-                'state' => '',
-                'payload' => json_encode($params),
-            ]);
-
-            return $payment;
-        }
-
-        return abort(400);
-    }
-
-
+http://localhost:8000/api/topsecret_split
 */

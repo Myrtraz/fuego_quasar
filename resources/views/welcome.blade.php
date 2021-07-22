@@ -64,6 +64,13 @@
         </style>
     </head>
     <body>
+    <form action="{{route('topsecret')}}" method="POST">
+        @csrf
+        <input type="text" name='name[]'>
+        <input type="text"name='name[]'>
+
+        <button type="submit">aceptar</button>
+    </form>
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">

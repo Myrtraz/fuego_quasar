@@ -14,5 +14,5 @@
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/getLocation', 'GeneralController@getLocation')->name('getLocation');
-Route::get('/getMessage', 'GeneralController@getMessage')->name('getMessage');
+
+Route::post('/topsecret', 'GeneralController@topsecret')->name('topsecret');
