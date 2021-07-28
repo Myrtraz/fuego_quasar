@@ -12,46 +12,36 @@ class GeneralController extends Controller
 
     public function topsecret(Request $request)
     {
-        $input = $request->all();        
+        $input = $request->all();
+        $d = array();
+        $p = array(
+            array($input['satellites'][0]['message']),
+            array($input['satellites'][1]['message']),
+            array($input['satellites'][2]['message'])
+        );
 
-        $count = count($input['name']);
-        $satellites = array();
+        $count = count($p);
+        for ($i= 0; $i<$count; $i++) {
 
-        for($i=0; $i<$count; $i++){
+            for ($o= 0; $o < count(array($i)) ; $o++) {
+                $d[] = $p[$i][$o];
 
-           if(!empty($input['name'][$i])){
-             array_push($satellites, 
-             array(
-              'satellites' => $input['name'][$i], $input['distance'][$i], $input['message'][$i]
-             ));
 
-           }
+            }
         }
 
-        $arr= [$input['message'][0]];
-        $arr1= [$input['message'][1]];
-        $arr2= [$input['message'][2]];
-        
-        $list = array_merge($arr, $arr1, $arr2);
-        
-        $remove[] = "'";
-        $remove[] = '"';
-        $remove[] = "-";
-        $remove[] = ",";
-        $remove[] = " ";
-        $FileName = str_replace( $remove, "",  $list);
+        dd($d[0][3]);
 
-        $z =  implode(" ", $FileName);
-        dd($z);
+        $sphere1 = new Sphere(-500.0, -200.0, $input['satellites'][0]['distance']);
+        $sphere2 = new Sphere(100.0, -100.0, $input['satellites'][1]['distance']);
+        $sphere3 = new Sphere(500.0, 100.0, $input['satellites'][2]['distance']);
 
-        $sphere1 = new Sphere(-500.0, -200.0, $input['distance'][0]);
-        $sphere2 = new Sphere(100.0, -100.0, $input['distance'][1]);
-        $sphere3 = new Sphere(500.0, 100.0, $input['distance'][2]);
-    
         $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
         $point = $trilateration->position();
 
-        //return $point;
+        dd($point);
+
+        return response()->json($point, $d);
     }
 
     public function topsecret_split_name(Request $request)
@@ -59,7 +49,7 @@ class GeneralController extends Controller
       $input = $request->all();
 
       request()->satellite_name;
-      
+
       $satellites = Satellites::create([
         'name' =>  request()->satellite_name,
         'distance' =>  $input['distance'],
@@ -70,7 +60,7 @@ class GeneralController extends Controller
     }
 
     public function topsecret_split(Request $request)
-    {  
+    {
       $id = 5;
       $id1 = 15;
       $id2 = 25;
@@ -82,9 +72,9 @@ class GeneralController extends Controller
         $arr= [$satellite->message];
         $arr1= [$satellite1->message];
         $arr2= [$satellite2->message];
-        
+
         $list = array_merge($arr, $arr1, $arr2);
-        
+
         $remove[] = "'";
         $remove[] = '"';
         $remove[] = "-";
@@ -99,27 +89,11 @@ class GeneralController extends Controller
       $sphere2 = new Sphere(100.0, -100.0, $satellite1->distance);
       $sphere3 = new Sphere(500.0, 100.0, $satellite2->distance);
 
-      //$sphere1 = new Sphere(60.1695, 24.9354, 81175);
-      //$sphere2 = new Sphere(58.3806, 26.7251, 162311);
-      //$sphere3 = new Sphere(58.3859, 24.4971, 116932);
       $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
       $point = $trilateration->position();
 
       print_r($point);
 
-      /*
-      Tuupola\Trilateration\Point Object
-      (
-          [latitude:protected] => 59.418775152143
-          [longitude:protected] => 24.75328717229
-      )
-      */
-
-    $url = "https://appelsiini.net/circles/"
-      . "?c={$sphere1}&c={$sphere2}&c={$sphere3}&m={$point}";
-
-    print '<a href="{$url}">Open in map</a>';
-      //return response()->json($satellites);
     }
 }
 
