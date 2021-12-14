@@ -31,7 +31,7 @@ class GeneralController extends Controller
           $sphere2 = new Sphere(100.0, -100.0, $input['satellites'][1]['distance']);
           $sphere3 = new Sphere(500.0, 100.0, $input['satellites'][2]['distance']);
   
-          $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
+          $trilateration = new CustomIntersection($sphere1, $sphere2, $sphere3);
           $point = $trilateration->position();
 
           print_r($point);
@@ -75,7 +75,7 @@ class GeneralController extends Controller
         $sphere2 = new Sphere(100.0, -100.0, $input['satellites'][1]['distance']);
         $sphere3 = new Sphere(500.0, 100.0, $input['satellites'][2]['distance']);
 
-        $trilateration = new Intersection($sphere1, $sphere2, $sphere3);
+        $trilateration = new CustomIntersection($sphere1, $sphere2, $sphere3);
         $point = $trilateration->position();
 
       print_r($point);
